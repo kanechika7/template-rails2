@@ -1,0 +1,93 @@
+global:                                             #グローバルな環境変数設定
+  set:                                              #変数を定義
+    application: qs4-ank                            #アプリケーション名
+    repository:  "ssh://sc02//var/apps/dev/qs4-ank" #リポジトリのuri
+    rvm_god_string: 1.9.2@god                       #godのgemset
+    rvm_ruby_string: 1.8.7@hoge                     #appのgemset
+
+#dev:
+#  role:
+#    web: "sc02.galileoscope.com"                    #deploy先を指定
+#  rails:
+#    task:
+#      start: rails server                           #gap dev rails start
+#      stop:
+#      restart:
+#  resque:
+#    task:
+#      start: 
+#      stop:
+#      restart:
+
+
+local:
+  set: 
+    rvm_ruby_string: ruby-1.8.7-p357
+  rails:
+    set:
+      god: false                                    #プロセスをgodで監視
+      pid_file:                                     #godを使うときは、pidを指定する
+    task:                                           #コマンドを定義
+      start: "bundle exec ruby ./script/server"     #gap local rails start
+      stop:                                         #gap local rails stop
+      restart:
+  backgroundrb: 
+    set:
+      god: false                                    #プロセスをgodで監視
+      pid_file:                                     #godを使うときは、pidを指定する
+    task:
+      start:  "bundle exec ruby ./script/backgroundrb_local start"
+      stop: "bundle exec ruby ./script/backgroundrb_local stop"
+      restart: "bundle exec ruby ./script/backgroundrb_local restart"
+  
+
+alpha:
+  role:
+    web: "sc02"
+  set: 
+    rvm_ruby_string: ruby-1.8.7-p357
+    repository:  "/var/apps/dev/qs4-ank"
+    branch: "4.2.0"
+  rails:
+    set:
+      god: false                                    #プロセスをgodで監視
+      pid_file: "/var/apps/alpha/qs4-ank/tmp/pids/unicorn_alpha.pid"                                    #godを使うときは、pidを指定する
+    task:
+      start: "source /etc/bashrc &&  cd /var/apps/alpha/qs4-ank && RAILS_ENV=alpha sudo bundle exec ruby ./script/unicorn_alpha/start.rb"                           #gap dev rails start
+      stop: "source /etc/bashrc &&  cd /var/apps/alpha/qs4-ank && sudo bundle exec ruby ./script/unicorn_alpha/stop.rb"
+      restart: "source /etc/bashrc && cd /var/apps/alpha/qs4-ank && RAILS_ENV=alpha sudo bundle exec ruby ./script/unicorn_alpha/reload.rb"
+
+beta:
+  role:
+    web: "front"
+  set: 
+    rvm_ruby_string: ruby-1.8.7-p357
+    clone_to: "/home/httpd/rails_apps/beta"
+    deploy_to: "/home/httpd/rails_apps/beta/qs4-ank"
+    branch: 'beta'
+
+  rails:
+    set:
+      god: false                                    #プロセスをgodで監視
+      pid_file: "/home/httpd/rails_apps/beta/qs4-ank/tmp/pids/unicorn_beta_y.pid"                                     #godを使うときは、pidを指定する
+    task:
+      start: "source /etc/bashrc &&  cd /home/httpd/rails_apps/beta/qs4-ank && RAILS_ENV=beta_y sudo bundle exec ruby ./script/unicorn_beta_y/start.rb"                           #gap dev rails start
+      stop: "source /etc/bashrc &&  cd /home/httpd/rails_apps/beta/qs4-ank && sudo bundle exec ruby ./script/unicorn_beta_y/stop.rb"
+      restart: "source /etc/bashrc && cd /home/httpd/rails_apps/beta/qs4-ank && RAILS_ENV=beta_y sudo bundle exec ruby ./script/unicorn_beta_y/reload.rb"
+
+pro:
+  role:
+    web: "front"
+  set: 
+    rvm_ruby_string: ruby-1.8.7-p357
+    clone_to: "/home/httpd/rails_apps/pro"
+    deploy_to: "/home/httpd/rails_apps/pro/qs4-ank"
+
+  rails:
+    set:
+      god: true                                    #プロセスをgodで監視
+      pid_file: "/home/httpd/rails_apps/pro/qs4-ank/tmp/pids/unicorn_pro_y.pid"                                     #godを使うときは、pidを指定する
+    task:
+      start: "source /etc/bashrc && cd /home/httpd/rails_apps/pro/qs4-ank && RAILS_ENV=pro_y sudo bundle exec ruby ./script/unicorn_pro_y/start.rb"                           #gap dev rails start
+      stop: "source /etc/bashrc && cd /home/httpd/rails_apps/pro/qs4-ank && sudo bundle exec ruby ./script/unicorn_pro_y/stop.rb"
+      restart: "source /etc/bashrc && cd /home/httpd/rails_apps/pro/qs4-ank && RAILS_ENV=pro_y sudo bundle exec ruby ./script/unicorn_pro_y/reload.rb"
